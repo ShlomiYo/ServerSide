@@ -110,7 +110,8 @@ exports.RegMe = function(req,res){
 
 
 
-// will be called automaticlly every 1 min to update the client 
+// will be called automaticlly every 1 min to update the client, i wont use the live update call from client more then once for now
+// but i did made it to work at the client side
 
 exports.LiveUpdate = function(req, res){
 
@@ -321,9 +322,9 @@ exports.addUser = function(req,res){
 											}
 
 
-											if(check){
+											if(check && newDoc.gUsersArr.length < 4){
 
-
+												
 													newDoc.gUsersArr[newDoc.gUsersArr.length] = toAdd;
 													newDoc.gNamesArr[newDoc.gNamesArr.length] = docAddedUser.user;
 													newDoc.gPlusArr[newDoc.gPlusArr.length] = 0;
@@ -340,6 +341,11 @@ exports.addUser = function(req,res){
 														res.json(returnedJson);
 
 													});
+											}else{
+
+												returnedJson = {"status":"Failed"};
+												res.json(returnedJson);
+
 											}
 
 
@@ -413,7 +419,7 @@ exports.joinApart = function(req,res){
 					aGroup.findOne( { gOwner: joinTo} , function (err, newDoc){
 
 
-						if(newDoc == null){ // apart Does Not Exists
+						if(newDoc == null || ewDoc.gUsersArr.length > 3){ // apart Does Not Exists, cant have more the 4 users in each apart
 
 							returnedJson = {"status":"Failed"};
 							res.json(returnedJson);
