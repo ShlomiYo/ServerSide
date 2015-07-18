@@ -280,7 +280,7 @@ exports.addUser = function(req,res){
 					aUser.findOne({mail: toAdd} , function (err, docAddedUser){ // checking if the other user exists
 
 						// tring to add a user which does not exists
-						if(docAddedUser == null){
+						if(docAddedUser == null || docAddedUser.apart != "0"){
 
 							returnedJson = {"status":"Failed"};
 							res.json(returnedJson);
