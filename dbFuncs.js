@@ -29,7 +29,7 @@ exports.LogMeIN = function(req,res){
 	var returnedJson = null;
 
 
-		aUser.findOne({ $and: [ { mail: req.body.mail} , {pass: req.body.pass} ] } , function (err, doc){
+		aUser.findOne({ $and: [ { mail: mail} , {pass: req.body.pass} ] } , function (err, doc){
 
 			// failed login
 			if(doc == null){
@@ -121,7 +121,7 @@ exports.LiveUpdate = function(req, res){
 	var apartInfo;
 	var returnedJson = null;
 
-		aUser.findOne({ $and: [ { "mail": req.body.mail} , {"pass": req.body.pass} ] } , function (err, doc){ // CHECK he is a real user
+		aUser.findOne({ $and: [ { "mail": mail} , {"pass": req.body.pass} ] } , function (err, doc){ // CHECK he is a real user
 
 			// user is not logged in
 			if(doc == null){
@@ -263,7 +263,7 @@ exports.addUser = function(req,res){
 	var check = true;
 
 
-		aUser.findOne({ $and: [ { mail: req.body.mail} , {pass: req.body.pass} ] } , function (err, doc){ // checking if this is a real user
+		aUser.findOne({ $and: [ { mail: mail} , {pass: req.body.pass} ] } , function (err, doc){ // checking if this is a real user
 
 			// failed login
 			if(doc == null){
@@ -402,7 +402,7 @@ exports.joinApart = function(req,res){
 	var returnedJson = null;
 
 
-		aUser.findOne({ $and: [ { mail: req.body.mail} , {pass: req.body.pass} ] } , function (err, doc){
+		aUser.findOne({ $and: [ { mail: mail} , {pass: req.body.pass} ] } , function (err, doc){
 
 			// failed login
 			if(doc == null){
@@ -639,7 +639,7 @@ exports.simpleUpdate = function(req,res){
 	var returnedJson = null;
 
 
-		aUser.findOne({ $and: [ { mail: req.body.mail} , {pass: req.body.pass} ] } , function (err, doc){
+		aUser.findOne({ $and: [ { mail: mail} , {pass: req.body.pass} ] } , function (err, doc){
 
 			// failed login
 			if(doc == null){
@@ -716,7 +716,7 @@ exports.adminUpdate = function(req,res){
 	var returnedJson = null;
 
 
-		aUser.findOne({ $and: [ { mail: req.body.mail} , {pass: req.body.pass} ] } , function (err, doc){
+		aUser.findOne({ $and: [ { mail: mail} , {pass: req.body.pass} ] } , function (err, doc){
 
 			// failed login
 			if(doc == null){
@@ -789,7 +789,7 @@ exports.removeUser = function(req,res){
 	var returnedJson = null;
 
 
-		aUser.findOne({ $and: [ { mail: req.body.mail} , {pass: req.body.pass} ] } , function (err, doc){
+		aUser.findOne({ $and: [ { mail: mail} , {pass: req.body.pass} ] } , function (err, doc){
 
 			// failed login
 			if(doc == null){
@@ -891,9 +891,9 @@ exports.leaveApartment = function(req,res){
 	var returnedJson = null;
 	var oldApart;
 	var tempIndex = 0;
-	var newApart;
+	var theNewApart;
 
-		aUser.findOne({ $and: [ { mail: req.body.mail} , {pass: req.body.pass} ] } , function (err, doc){
+		aUser.findOne({ $and: [ { mail: mail} , {pass: req.body.pass} ] } , function (err, doc){
 
 			// failed login
 			if(doc == null){
@@ -908,7 +908,7 @@ exports.leaveApartment = function(req,res){
 				if(doc.apart != "0"){ // i got apart and now i need to split user and admin
 
 
-					if(doc.apart == mail){ // admin user
+					if(doc.apart == mail){ // admin user is leaving
 
 
 
@@ -920,7 +920,7 @@ exports.leaveApartment = function(req,res){
 						q.exec(function(err, results){
 
 
-								aGroup.findOne( { gOwner: oldApart}  , function (err, docs){
+								aGroup.findOne( { gOwner: oldApart}  , function (err, docs){ // find the apart
 
 
 
@@ -940,6 +940,7 @@ exports.leaveApartment = function(req,res){
 											else{
 												check = 0;
 											}
+											theNewApart = docs.gUsersArr[check];
 
 
 
@@ -948,16 +949,15 @@ exports.leaveApartment = function(req,res){
 											docs.gNamesArr.splice(tempIndex, 1);
 											docs.gStatusArr.splice(tempIndex, 1);
 
-											newApart = docs.gUsersArr[check];
+											console.log("Check : "+theNewApart);
 
-
-											var q2 = docs.update({$set: { gOwner: newApart, gUsersArr: docs.gUsersArr, gPlusArr: docs.gPlusArr, gNamesArr: docs.gNamesArr, gStatusArr: docs.gStatusArr }  });
+											var q2 = docs.update({$set: { gOwner: theNewApart, gUsersArr: docs.gUsersArr, gPlusArr: docs.gPlusArr, gNamesArr: docs.gNamesArr, gStatusArr: docs.gStatusArr }  });
 
 											q2.exec(function(err, results){ // now i just need to update all the rest of the users
 
 
 
-												aGroup.findOne( { gOwner: newApart}  , function (err, newDocs){
+												aGroup.findOne( { gOwner: theNewApart}  , function (err, newDocs){
 
 
 														for(tempIndex = 0; tempIndex < newDocs.gUsersArr.length ; tempIndex++){
@@ -967,7 +967,7 @@ exports.leaveApartment = function(req,res){
 															aUser.findOne( { mail: newDocs.gUsersArr[tempIndex]}  , function (err, usersLoop){
 
 
-																	var q3 = usersLoop.update({$set: { apart: newApart }  });
+																	var q3 = usersLoop.update({$set: { apart: theNewApart }  });
 
 																	q3.exec(function(err, results){});
 
