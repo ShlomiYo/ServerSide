@@ -419,7 +419,7 @@ exports.joinApart = function(req,res){
 					aGroup.findOne( { gOwner: joinTo} , function (err, newDoc){
 
 
-						if(newDoc == null || ewDoc.gUsersArr.length > 3){ // apart Does Not Exists, cant have more the 4 users in each apart
+						if(newDoc == null || newDoc.gUsersArr.length > 3){ // apart Does Not Exists, cant have more the 4 users in each apart
 
 							returnedJson = {"status":"Failed"};
 							res.json(returnedJson);
